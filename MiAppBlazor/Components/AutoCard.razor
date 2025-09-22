@@ -1,0 +1,35 @@
+<div class="auto-card">
+    <img class="auto-image" src="@Imagen" alt="@Nombre" />
+    <div class="auto-card-info">
+        <h3>@Nombre</h3>
+        <p class="auto-modelo">
+            @Marca - @Modelo <span class="auto-anio">(@Anio)</span>
+        </p>
+        <p class="auto-precio">@PrecioCOP</p>
+
+        <button class="btn-carrito" @onclick="Comprar">
+            <i class="fas fa-shopping-cart icono-carrito"></i> Comprar
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Nombre { get; set; } = "";
+    [Parameter] public string Marca { get; set; } = "";
+    [Parameter] public string Modelo { get; set; } = "";
+    [Parameter] public int Anio { get; set; }
+    [Parameter] public decimal Precio { get; set; }
+    [Parameter] public string Imagen { get; set; } = "";
+
+    // Evento para notificar cuando se hace clic en "Comprar"
+    [Parameter] public EventCallback OnAddToCart { get; set; }
+
+    // Formatear precio en COP como en React
+    private string PrecioCOP =>
+        string.Format(new System.Globalization.CultureInfo("es-CO"), "{0:C0}", Precio);
+
+    private async Task Comprar()
+    {
+        await OnAddToCart.InvokeAsync();
+    }
+}

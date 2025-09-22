@@ -1,0 +1,102 @@
+﻿@namespace MiAppBlazor.Components.Layout
+@code {
+    // En Blazor no tenemos useState/useEffect, usamos campos normales.
+    private bool menuOpen = false;
+    private bool showNav = true;
+    private double lastScrollY = 0;
+
+    private List<MenuItem> Items = new()
+    {
+        new MenuItem { Label = "Inicio", Link = "/" },
+        new MenuItem { Label = "Catálogo", Link = "/home" },
+        new MenuItem { Label = "Contacto", Link = "/contacto" }
+    };
+
+    private bool IsLoggedIn = true; // ⚡️Cámbialo por tu lógica real
+
+    private void ToggleMenu() => menuOpen = !menuOpen;
+
+    private void Logout()
+    {
+        IsLoggedIn = false;
+        // 👉 aquí puedes poner la lógica para cerrar sesión
+    }
+
+    // Scroll dinámico: usamos JS para detectar scroll
+    [JSInvokable]
+    public void HandleScroll(double scrollY)
+    {
+        if (scrollY > lastScrollY && scrollY > 50)
+            showNav = false; // bajando → ocultar
+        else
+            showNav = true;  // subiendo → mostrar
+
+        lastScrollY = scrollY;
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Registrar evento de scroll en JS
+            await JS.InvokeVoidAsync("registerScrollHandler", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [Inject] IJSRuntime JS { get; set; } = default!;
+}
+
+<nav class="nav-menu @(menuOpen ? "active" : "") @(showNav ? "show" : "hide")">
+    <!-- Botón Hamburger -->
+    <div class="hamburger" @onclick="ToggleMenu">
+        <span></span><span></span><span></span>
+    </div>
+
+    <!-- Menú de links -->
+    <ul class="menu-items">
+        @foreach (var item in Items)
+        {
+            <li><NavLink href="@item.Link">@item.Label</NavLink></li>
+        }
+    </ul>
+
+    <!-- Carrusel de logos -->
+    <div class="brand-logos">
+        <div class="brand-logos-track">
+            @foreach (var logo in Logos)
+            {
+                <img src="@logo" alt="logo" class="logo-marca" />
+            }
+            @* Duplicar para animación infinita *@
+            @foreach (var logo in Logos)
+            {
+                <img src="@logo" alt="logo" class="logo-marca" />
+            }
+        </div>
+    </div>
+
+    @if (IsLoggedIn)
+    {
+        <div class="logout-nav">
+            <button class="logout-btn" @onclick="Logout">Cerrar sesión</button>
+        </div>
+    }
+</nav>
+
+@code {
+    private List<string> Logos = new()
+    {
+        "/logobmw.png", "/logoferrari.png", "/logolambo.png", "/logoaudi.png",
+        "/logoford.png", "/logochevrolet.png", "/logomercedes.png",
+        "/logoporsche.png", "/logomaserati.png", "/logokoe.png",
+        "/logotesla.png", "/logododge.png"
+    };
+
+    public class MenuItem
+    {
+        public string Label { get; set; } = "";
+        public string Link { get; set; } = "";
+    }
+}
+

@@ -1,0 +1,87 @@
+﻿@page "/"
+@using MiAppBlazor.Models
+@using MiAppBlazor.Components.Layout
+@using MiAppBlazor.Components
+
+<NavMenu />
+
+<div class="App">
+    <header class="hero">
+        <h1>Catálogo de Autos Exclusivos</h1>
+        <p>Encuentra tu próximo vehículo de lujo</p>
+    </header>
+
+    <!-- Catálogo de autos usando AutoCard -->
+    <div class="catalog-container">
+        <div class="auto-grid">
+            @foreach (var auto in autos)
+            {
+                <AutoCard Nombre="@auto.Nombre"
+                          Marca="@auto.Marca"
+                          Modelo="@auto.Modelo"
+                          Anio="@auto.Anio"
+                          Precio="@auto.Precio"
+                          Imagen="@auto.Imagen"
+                          OnAddToCart="() => AddToCart(auto)" />
+            }
+        </div>
+
+        <!-- Carrito -->
+        @if (cart.Count > 0)
+        {
+            <div class="cart-container">
+                <h2>Carrito de compras (@cart.Count)</h2>
+                <ul>
+                    @for (int i = 0; i < cart.Count; i++)
+                    {
+                        <li>
+                            @cart[i].Nombre - 
+                            @cart[i].Precio.ToString("C0", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"))
+                            <button class="remove-btn" @onclick="() => RemoveFromCart(i)">Eliminar</button>
+                        </li>
+                    }
+                </ul>
+                <p><strong>Total:</strong> @totalCOP</p>
+                <button class="btn btn-danger" @onclick="ClearCart">Vaciar Carrito</button>
+            </div>
+        }
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 Catálogo de Autos | Todos los derechos reservados a JANDER</p>
+    </footer>
+</div>
+
+@code {
+    private List<Auto> cart = new();
+    private List<Auto> autos = new();
+    private string totalCOP => cart.Sum(c => c.Precio)
+        .ToString("C0", System.Globalization.CultureInfo.CreateSpecificCulture("es-CO"));
+
+    protected override void OnInitialized()
+    {
+        autos = new()
+        {
+            new Auto { Nombre="Model S", Marca="Tesla", Modelo="Plaid", Anio=2023, Precio=799990000, Imagen="tesla.jpg" },
+            new Auto { Nombre="Mustang", Marca="Ford", Modelo="GT500", Anio=2022, Precio=559990000, Imagen="mustang.jpg" },
+            new Auto { Nombre="Civic", Marca="Honda", Modelo="Type R", Anio=2021, Precio=250000000, Imagen="civic.jpg" },
+            new Auto { Nombre="M4", Marca="BMW", Modelo="Competition", Anio=2023, Precio=680000000, Imagen="bmwm4.jpg" },
+            new Auto { Nombre = "488 GTB", Marca = "Ferrari", Modelo = "Coupé", Anio = 2020, Precio = 1200000000, Imagen = "Ferrari488.jpg" },
+            new Auto { Nombre = "R8", Marca = "Audi", Modelo = "V10 Plus", Anio = 2021, Precio = 950000000, Imagen = "audir8.jpg" },
+            new Auto { Nombre = "TT RS", Marca = "Audi", Modelo = "Coupe", Anio = 2014, Precio = 125000000, Imagen = "auditt.jpg" },
+            new Auto { Nombre = "GranTurismo", Marca = "Maserati", Modelo = "V8", Anio = 2016, Precio = 800000000, Imagen = "maserati.jpg" },
+            new Auto { Nombre = "GT3-RS", Marca = "Porsche", Modelo = "Coupe", Anio = 2020, Precio = 1600000000, Imagen = "911.jpg" },
+            new Auto { Nombre = "AMG GT 53", Marca = "Mercedes", Modelo = "Coupe", Anio = 2017, Precio = 1000000000, Imagen = "amg.jpg" },
+            new Auto { Nombre = "Aventador", Marca = "Lamborghini", Modelo = "V12", Anio = 2011, Precio = 1500000000, Imagen = "aventador.jpg" },
+            new Auto { Nombre = "Chiron Sport", Marca = "Bugatti", Modelo = "V16", Anio = 2023, Precio = 15000000000, Imagen = "chiron.jpg" },
+            new Auto { Nombre = "Regera", Marca = "Koenigsegg", Modelo = "V8", Anio = 2016, Precio = 11000000000, Imagen = "regera.jpg" },
+            new Auto { Nombre = "Wraith", Marca = "Rolls Royce", Modelo = "Coupe V12", Anio = 2015, Precio = 900000000, Imagen = "rolls.jpg" },
+            new Auto { Nombre = "Charger", Marca = "Dodge", Modelo = "STR", Anio = 2013, Precio = 300000000, Imagen = "str.jpg" },
+            new Auto { Nombre = "TRX", Marca = "RAM", Modelo = "1500", Anio = 2023, Precio = 600000000, Imagen = "trx.jpg" }
+        };
+    }
+
+    private void AddToCart(Auto auto) => cart.Add(auto);
+    private void RemoveFromCart(int index) => cart.RemoveAt(index);
+    private void ClearCart() => cart.Clear();
+}
